@@ -11,6 +11,12 @@ export interface Subject {
   rank: string;
   color: string;
   visible: boolean;
+  /** 総合の加重平均に使う配点（総合欄は 0） */
+  weight: number;
+  /** 総合欄か。科目の点数が変わると自動で再計算される（直接編集も可） */
+  isTotal: boolean;
+  /** 総合欄を手入力中か。手で書き換えると true になり、以後は自動計算で上書きしない */
+  manual: boolean;
 }
 
 export interface BackgroundState {
@@ -52,6 +58,9 @@ export function createDefaultState(): AppState {
       rank: '',
       color: preset.color,
       visible: true,
+      weight: preset.weight,
+      isTotal: preset.isTotal ?? false,
+      manual: false,
     })),
     background: createDefaultBackground(),
   };

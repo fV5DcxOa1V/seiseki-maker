@@ -26,16 +26,20 @@ export const TILE_COLORS = {
 export interface SubjectPreset {
   name: string;
   color: string;
+  /** 総合の加重平均に使う配点 */
+  weight: number;
+  /** 総合欄か（科目の点数から自動計算される） */
+  isTotal?: boolean;
 }
 
-/** 公認会計士試験プリセット。将来は試験ごとにプリセットを切り替えられる */
+/** 公認会計士試験（論文式）プリセット。将来は試験ごとにプリセットを切り替えられる */
 export const DEFAULT_SUBJECTS: SubjectPreset[] = [
-  { name: '監査論', color: TILE_COLORS.blue },
-  { name: '租税法', color: TILE_COLORS.purple },
-  { name: '会計学', color: TILE_COLORS.red },
-  { name: '企業法', color: TILE_COLORS.gold },
-  { name: '経営学', color: TILE_COLORS.green },
-  { name: '総合', color: TILE_COLORS.brightGold },
+  { name: '監査論', color: TILE_COLORS.blue, weight: 100 },
+  { name: '租税法', color: TILE_COLORS.purple, weight: 100 },
+  { name: '会計学', color: TILE_COLORS.red, weight: 300 },
+  { name: '企業法', color: TILE_COLORS.gold, weight: 100 },
+  { name: '経営学', color: TILE_COLORS.green, weight: 100 },
+  { name: '総合', color: TILE_COLORS.brightGold, weight: 0, isTotal: true },
 ];
 
 export const DEFAULT_TEXT = {

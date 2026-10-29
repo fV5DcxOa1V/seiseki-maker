@@ -2,6 +2,7 @@
 
 import { BACKGROUND_ZOOM } from './config.ts';
 import { createDefaultBackground, type Store, type Subject } from './state.ts';
+import { computeTotalScore, describeWeights } from './total.ts';
 import type { ValidationResult } from './validation.ts';
 
 function $<T extends HTMLElement>(id: string): T {
@@ -145,11 +146,13 @@ export function initForm(store: Store, onError: (message: string) => void): Form
         btn.textContent = `「${s.name || '名称未設定'}」を戻す`;
         btn.addEventListener('click', () => {
           store.updateSubject(s.id, { visible: true });
+          recalcTotal();
           renderSubjects();
         });
         return btn;
       }),
     );
+    refreshTotalHelp();
     if (lastResult) applyValidation(lastResult);
   }
 
@@ -182,7 +185,15 @@ export function initForm(store: Store, onError: (message: string) => void): Form
       input.addEventListener('input', () => {
         touched.add(`${subject.id}:${field}`);
         if (field === 'name') updateLabels(input.value);
+        if (field === 'score' && subject.isTotal) {
+          // 総合を手で書き換えたら手入力に切り替え、以後は自動計算で上書きしない
+          store.updateSubject(subject.id, { score: input.value, manual: true });
+          refreshTotalHelp();
+          return;
+        }
         store.updateSubject(subject.id, { [field]: input.value });
+        if (field === 'score') recalcTotal();
+        if (field === 'name') refreshTotalHelp();
       });
       input.addEventListener('blur', () => {
         touched.add(`${subject.id}:${field}`);
@@ -194,9 +205,66 @@ export function initForm(store: Store, onError: (message: string) => void): Form
     removeBtn.disabled = visibleCount <= 1;
     removeBtn.addEventListener('click', () => {
       store.updateSubject(subject.id, { visible: false });
+      recalcTotal();
       renderSubjects();
     });
+
+    if (subject.isTotal) {
+      const scoreInput = card.querySelector<HTMLInputElement>('[data-field="score"]')!;
+      const help = document.createElement('div');
+      help.id = `subject-${subject.id}-total-help`;
+      help.className = 'form-text';
+      help.dataset.totalHelp = '';
+      const autoBtn = document.createElement('button');
+      autoBtn.type = 'button';
+      autoBtn.className = 'btn btn-outline-secondary btn-sm';
+      autoBtn.textContent = '自動計算に戻す';
+      autoBtn.dataset.totalAuto = '';
+      autoBtn.addEventListener('click', () => {
+        store.updateSubject(subject.id, { manual: false });
+        recalcTotal();
+        refreshTotalHelp();
+      });
+      // 「自動計算に戻す」と「この科目を削除」を1つの行に並べて位置をそろえる
+      const actions = document.createElement('div');
+      actions.className = 'd-flex flex-wrap gap-2 mt-2';
+      removeBtn.classList.remove('mt-2');
+      actions.append(autoBtn, removeBtn);
+      card.querySelector('.row')!.after(help, actions);
+      scoreInput.setAttribute('aria-describedby', `${scoreInput.getAttribute('aria-describedby')} ${help.id}`);
+    }
     return card;
+  }
+
+  /** 総合欄の説明を、自動計算中か手入力中かに合わせて切り替える */
+  function refreshTotalHelp(): void {
+    const state = store.get();
+    const total = state.subjects.find((s) => s.isTotal && s.visible);
+    if (!total) return;
+    const card = subjectList.querySelector<HTMLElement>(`[data-id="${total.id}"]`);
+    const help = card?.querySelector<HTMLElement>('[data-total-help]');
+    const autoBtn = card?.querySelector<HTMLButtonElement>('[data-total-auto]');
+    if (!help || !autoBtn) return;
+    const weights = describeWeights(state);
+    help.textContent = total.manual
+      ? '手入力：科目の点数を変えても更新されません。'
+      : `自動計算（論文式の配点${weights ? `：${weights}` : ''}）。総合を書き換えると手入力に切り替わります。`;
+    autoBtn.hidden = !total.manual;
+  }
+
+  /**
+   * 総合を加重平均で更新する。手入力中は上書きしない。
+   * 計算できない（未入力・不正値がある）ときは、総合をそのままにする。
+   */
+  function recalcTotal(): void {
+    const state = store.get();
+    const total = state.subjects.find((s) => s.isTotal && s.visible);
+    if (!total || total.manual) return;
+    const score = computeTotalScore(state);
+    if (score === null || score === total.score) return;
+    store.updateSubject(total.id, { score });
+    const input = subjectList.querySelector<HTMLInputElement>(`[data-id="${total.id}"] [data-field="score"]`);
+    if (input) input.value = score;
   }
 
   // ---------- テキスト ----------
