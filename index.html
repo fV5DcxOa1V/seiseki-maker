@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="試験結果を画像にしてシェアできるサービス。" />
+    <link rel="canonical" href="%VITE_SITE_URL%" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="%VITE_SITE_URL%" />
+    <meta property="og:title" content="成績発表メーカー" />
+    <meta property="og:description" content="試験結果を画像にしてシェアできるサービス。" />
+    <meta property="og:image" content="%VITE_SITE_URL%ogp.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="科目ごとの点数と順位を並べた成績発表画像の例" />
+    <meta property="og:locale" content="ja_JP" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#1b4da6" />
+    <title>成績発表メーカー</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='6' width='28' height='20' rx='3' fill='%23fff'/%3E%3Crect x='5' y='9' width='7' height='14' fill='%231b4da6'/%3E%3Crect x='12.5' y='9' width='7' height='14' fill='%23be1e2d'/%3E%3Crect x='20' y='9' width='7' height='14' fill='%23b8860b'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@700;900&family=Noto+Serif+JP:wght@900&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container app-container py-3 py-lg-4">
+      <header class="mb-4">
+        <h1 class="app-title h3 fw-bold mb-1">成績発表メーカー</h1>
+        <p class="text-body-secondary mb-0">試験結果を画像にしてシェアできるサービス。</p>
+      </header>
+
+      <div id="in-app-notice" class="alert alert-warning" role="alert" hidden>
+        <p class="fw-bold mb-1">アプリ内のブラウザで開いています</p>
+        <p class="mb-2">このままでは画像の保存やXへの投稿ができない場合があります。SafariまたはChromeで開き直してください。</p>
+        <a id="in-app-open" class="btn btn-warning w-100 mb-2" hidden>ブラウザで開く</a>
+        <button id="in-app-copy" type="button" class="btn btn-outline-dark w-100">このページのURLをコピー</button>
+        <p class="small mb-0 mt-2">右上や右下のメニューにある「ブラウザで開く」からも開けます。</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <form id="editor" novalidate>
+            <!-- 背景画像 -->
+            <section class="card mb-3" aria-labelledby="bg-heading">
+              <div class="card-body">
+                <h2 id="bg-heading" class="h5 card-title">背景画像</h2>
+                <label for="bg-file" class="form-label">
+                  画像を選択 <span class="badge text-bg-danger">必須</span>
+                </label>
+                <input id="bg-file" class="form-control form-control-lg" type="file" accept="image/*" aria-describedby="bg-feedback" />
+                <div id="bg-feedback" class="invalid-feedback">背景画像を選択してください</div>
+
+                <canvas id="bg-mini" class="preview-canvas mt-3 d-lg-none" width="800" height="450" hidden aria-label="背景位置の確認用プレビュー" role="img"></canvas>
+
+                <fieldset id="bg-adjust" class="mt-3" disabled>
+                  <legend class="form-label fs-6 mb-2">表示範囲の調整</legend>
+                  <label for="bg-zoom" class="form-label small mb-0">拡大・縮小</label>
+                  <input id="bg-zoom" class="form-range" type="range" min="100" max="300" step="1" value="100" />
+                  <label for="bg-x" class="form-label small mb-0">左右の位置</label>
+                  <input id="bg-x" class="form-range" type="range" min="-100" max="100" step="1" value="0" />
+                  <div class="d-flex justify-content-between small text-body-secondary range-hint" aria-hidden="true"><span>← 左</span><span>右 →</span></div>
+                  <label for="bg-y" class="form-label small mb-0">上下の位置</label>
+                  <input id="bg-y" class="form-range" type="range" min="-100" max="100" step="1" value="0" />
+                  <div class="d-flex justify-content-between small text-body-secondary range-hint" aria-hidden="true"><span>← 上</span><span>下 →</span></div>
+                  <button id="bg-adjust-reset" type="button" class="btn btn-outline-secondary btn-sm mt-2">表示範囲を元に戻す</button>
+                </fieldset>
+              </div>
+            </section>
+
+            <!-- 成績 -->
+            <section class="card mb-3" aria-labelledby="subjects-heading">
+              <div class="card-body">
+                <h2 id="subjects-heading" class="h5 card-title">成績</h2>
+                <p class="small text-body-secondary">点数は必須（0.00〜999.99）、順位は任意です。免除科目などは削除できます。</p>
+                <div id="subject-list"></div>
+                <div id="hidden-subjects" class="mt-2" hidden>
+                  <h3 class="h6">削除した科目</h3>
+                  <div id="hidden-subject-list" class="d-flex flex-wrap gap-2"></div>
+                </div>
+              </div>
+            </section>
+
+            <!-- 注記 -->
+            <section class="card mb-3" aria-labelledby="note-heading">
+              <div class="card-body">
+                <h2 id="note-heading" class="h5 card-title">注記</h2>
+                <label for="note" class="form-label">画像右下（成績タイルの下）に表示する文字</label>
+                <input id="note" class="form-control form-control-lg" type="text" maxlength="60" aria-describedby="note-help" />
+                <div id="note-help" class="form-text">空欄にすると表示されません。</div>
+              </div>
+            </section>
+
+            <!-- 試験名（X 投稿文に使う） -->
+            <section class="card mb-3">
+              <div class="card-body">
+                <h2 class="h5 card-title mb-2">
+                  <label for="exam-name">試験名</label>
+                  <span class="badge text-bg-danger fs-6 align-middle">必須</span>
+                </h2>
+                <input id="exam-name" class="form-control form-control-lg" type="text" maxlength="40" aria-describedby="exam-name-feedback" />
+                <div id="exam-name-feedback" class="invalid-feedback"></div>
+              </div>
+            </section>
+          </form>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="preview-column">
+            <section aria-labelledby="preview-heading">
+              <h2 id="preview-heading" class="h5">プレビュー</h2>
+              <canvas id="preview" class="preview-canvas" width="1600" height="900" role="img" aria-label="成績発表画像のプレビュー"></canvas>
+              <p class="small text-body-secondary mt-1 mb-3">出力サイズ：1600×900px（PNG）</p>
+            </section>
+
+            <div class="d-grid gap-2">
+              <button id="btn-save" type="button" class="btn btn-primary btn-lg" aria-describedby="save-hint">画像を保存</button>
+              <p id="save-hint" class="small text-body-secondary mb-1" hidden>表示されるメニューで「画像を保存」を選ぶと、写真アプリに保存されます。</p>
+              <button id="btn-share" type="button" class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2">
+                <svg class="x-logo" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                <span>Xに投稿する</span>
+              </button>
+              <div id="status" class="mt-1" role="status" aria-live="polite"></div>
+              <figure id="result-panel" class="result-panel mb-0" hidden>
+                <figcaption class="fw-bold mb-2">画像を長押しして「写真に保存」または「画像をダウンロード」を選んでください</figcaption>
+                <img id="result-image" class="result-image" alt="作成した成績発表画像" />
+              </figure>
+              <button id="btn-reset" type="button" class="btn btn-outline-danger mt-3">初期状態に戻す</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="text-center small text-body-secondary mt-5">
+        入力した内容や画像はサーバーに送信されません。<br class="d-sm-none" />画像の作成はすべてお使いの端末内で行われます。
+      </footer>
+    </div>
+
+    <template id="subject-template">
+      <fieldset class="subject-card">
+        <legend class="subject-legend">
+          <span class="subject-swatch" aria-hidden="true"></span>
+          <span class="subject-legend-text"></span>
+        </legend>
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label mb-1" data-for="name">科目名</label>
+            <input class="form-control" type="text" maxlength="12" data-field="name" />
+          </div>
+          <div class="col-7">
+            <label class="form-label mb-1" data-for="score">点数 <span class="badge text-bg-danger">必須</span></label>
+            <div class="input-group has-validation">
+              <input class="form-control" type="text" inputmode="decimal" autocomplete="off" placeholder="例 61.40" data-field="score" />
+              <span class="input-group-text">点</span>
+              <div class="invalid-feedback" data-feedback="score"></div>
+            </div>
+          </div>
+          <div class="col-5">
+            <label class="form-label mb-1" data-for="rank">順位 <span class="text-body-secondary small">任意</span></label>
+            <div class="input-group has-validation">
+              <input class="form-control" type="text" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="例 237" data-field="rank" />
+              <span class="input-group-text">位</span>
+              <div class="invalid-feedback" data-feedback="rank"></div>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline-danger btn-sm mt-2" data-action="remove"></button>
+      </fieldset>
+    </template>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

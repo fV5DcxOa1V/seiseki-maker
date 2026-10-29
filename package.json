@@ -1,0 +1,19 @@
+{
+  "name": "seiseki-maker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "試験結果を画像にしてシェアできるサービス",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.8"
+  }
+}

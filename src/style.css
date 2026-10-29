@@ -1,0 +1,97 @@
+body {
+  background: #f3f5f8;
+  overflow-x: hidden;
+}
+
+.app-container {
+  max-width: 1180px;
+}
+
+.app-title {
+  letter-spacing: 0.04em;
+}
+
+.form-control,
+.form-select {
+  min-height: 48px;
+}
+
+.input-group-text {
+  min-width: 2.75rem;
+  justify-content: center;
+}
+
+.form-range {
+  height: 2rem;
+}
+
+.range-hint {
+  margin-top: -0.4rem;
+  margin-bottom: 0.5rem;
+}
+
+.preview-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  background: #1f252d;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+@media (min-width: 992px) {
+  .preview-column {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+.subject-card {
+  border: 1px solid var(--bs-border-color);
+  border-left: 6px solid var(--subject-color, #888);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem 1rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+}
+
+.subject-legend {
+  float: none;
+  width: auto;
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subject-swatch {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 3px;
+  border: 2px solid #fff;
+  outline: 1px solid rgba(0, 0, 0, 0.2);
+  background: var(--subject-color, #888);
+}
+
+.result-panel {
+  padding: 0.75rem;
+  border: 2px dashed var(--bs-primary);
+  border-radius: 0.5rem;
+  background: #fff;
+}
+
+.result-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* iOS で長押しメニュー（写真に保存）を出すため */
+  -webkit-touch-callout: default;
+}
+
+.btn-sm {
+  min-height: 40px;
+}
