@@ -26,7 +26,11 @@
     <div class="container app-container py-3 py-lg-4">
       <header class="mb-4">
         <h1 class="app-title h3 fw-bold mb-1">成績発表メーカー</h1>
-        <p class="text-body-secondary mb-0">試験結果を画像にしてシェアできるサービス。</p>
+        <p class="text-body-secondary mb-2">試験結果を画像にしてシェアできるサービス。</p>
+        <p class="privacy-note mb-0">
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 1a3.5 3.5 0 0 0-3.5 3.5V7H4a1.5 1.5 0 0 0-1.5 1.5v5A1.5 1.5 0 0 0 4 15h8a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 12 7h-.5V4.5A3.5 3.5 0 0 0 8 1Zm2 6H6V4.5a2 2 0 1 1 4 0V7Z"/></svg>
+          <span>入力した内容や画像はサーバーに送信されません。画像の作成はすべてお使いの端末内で行われます。</span>
+        </p>
       </header>
 
       <div id="in-app-notice" class="alert alert-warning" role="alert" hidden>
@@ -47,8 +51,9 @@
                 <label for="bg-file" class="form-label">
                   画像を選択 <span class="badge text-bg-danger">必須</span>
                 </label>
-                <input id="bg-file" class="form-control form-control-lg" type="file" accept="image/*" aria-describedby="bg-feedback" />
+                <input id="bg-file" class="form-control form-control-lg" type="file" accept="image/*" aria-describedby="bg-help bg-feedback" />
                 <div id="bg-feedback" class="invalid-feedback">背景画像を選択してください</div>
+                <div id="bg-help" class="form-text">画像はアップロードされず、この端末内だけで使われます。</div>
 
                 <canvas id="bg-mini" class="preview-canvas mt-3 d-lg-none" width="800" height="450" hidden aria-label="背景位置の確認用プレビュー" role="img"></canvas>
 
@@ -130,9 +135,6 @@
         </div>
       </div>
 
-      <footer class="text-center small text-body-secondary mt-5">
-        入力した内容や画像はサーバーに送信されません。<br class="d-sm-none" />画像の作成はすべてお使いの端末内で行われます。
-      </footer>
     </div>
 
     <template id="subject-template">
