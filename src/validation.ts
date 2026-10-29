@@ -48,6 +48,12 @@ export function formatRank(raw: string): string | null {
   return String(Number(normalizeNumber(raw)));
 }
 
+export interface SubjectErrors {
+  name: string | null;
+  score: string | null;
+  rank: string | null;
+}
+
 export interface ValidationResult {
   /** 画像の作成に必要な項目がそろっているか（試験名は含まない） */
   ok: boolean;
@@ -55,16 +61,20 @@ export interface ValidationResult {
   /** X 投稿時のみ必須 */
   examName: string | null;
   /** subject id → エラー */
-  subjects: Map<string, { score: string | null; rank: string | null }>;
+  subjects: Map<string, SubjectErrors>;
 }
 
 export function validateState(state: AppState): ValidationResult {
-  const subjects = new Map<string, { score: string | null; rank: string | null }>();
+  const subjects = new Map<string, SubjectErrors>();
   let ok = state.background.image !== null;
   for (const s of state.subjects) {
     if (!s.visible) continue;
-    const errors = { score: validateScore(s.score), rank: validateRank(s.rank) };
-    if (errors.score || errors.rank) ok = false;
+    const errors: SubjectErrors = {
+      name: s.name.trim() ? null : '科目名を入力してください',
+      score: validateScore(s.score),
+      rank: validateRank(s.rank),
+    };
+    if (errors.name || errors.score || errors.rank) ok = false;
     subjects.set(s.id, errors);
   }
   return {

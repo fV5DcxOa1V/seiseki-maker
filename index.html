@@ -59,7 +59,7 @@
 
                 <fieldset id="bg-adjust" class="mt-3" disabled>
                   <legend class="form-label fs-6 mb-2">表示範囲の調整</legend>
-                  <label for="bg-zoom" class="form-label small mb-0">拡大・縮小</label>
+                  <label for="bg-zoom" class="form-label small mb-0">拡大</label>
                   <input id="bg-zoom" class="form-range" type="range" min="100" max="300" step="1" value="100" />
                   <label for="bg-x" class="form-label small mb-0">左右の位置</label>
                   <input id="bg-x" class="form-range" type="range" min="-100" max="100" step="1" value="0" />
@@ -102,8 +102,9 @@
                   <label for="exam-name">試験名</label>
                   <span class="badge text-bg-danger fs-6 align-middle">必須</span>
                 </h2>
-                <input id="exam-name" class="form-control form-control-lg" type="text" maxlength="40" aria-describedby="exam-name-feedback" />
+                <input id="exam-name" class="form-control form-control-lg" type="text" maxlength="40" aria-describedby="exam-name-help exam-name-feedback" />
                 <div id="exam-name-feedback" class="invalid-feedback"></div>
+                <div id="exam-name-help" class="form-text">Xの投稿文に使われます。</div>
               </div>
             </section>
           </form>
@@ -120,10 +121,11 @@
             <div class="d-grid gap-2">
               <button id="btn-save" type="button" class="btn btn-primary btn-lg" aria-describedby="save-hint">画像を保存</button>
               <p id="save-hint" class="small text-body-secondary mb-1" hidden>表示されるメニューで「画像を保存」を選ぶと、写真アプリに保存されます。</p>
-              <button id="btn-share" type="button" class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2">
+              <button id="btn-share" type="button" class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2" aria-describedby="post-hint">
                 <svg class="x-logo" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
                 <span>Xに投稿する</span>
               </button>
+              <p id="post-hint" class="small text-body-secondary mb-1" hidden>画像を保存してから、Xの投稿画面を開きます。</p>
               <div id="status" class="mt-1" role="status" aria-live="polite"></div>
               <figure id="result-panel" class="result-panel mb-0" hidden>
                 <figcaption class="fw-bold mb-2">画像を長押しして「写真に保存」または「画像をダウンロード」を選んでください</figcaption>
@@ -145,8 +147,9 @@
         </legend>
         <div class="row g-2">
           <div class="col-12">
-            <label class="form-label mb-1" data-for="name">科目名</label>
+            <label class="form-label mb-1" data-for="name">科目名 <span class="badge text-bg-danger">必須</span></label>
             <input class="form-control" type="text" maxlength="12" data-field="name" />
+            <div class="invalid-feedback" data-feedback="name"></div>
           </div>
           <div class="col-7">
             <label class="form-label mb-1" data-for="score">点数 <span class="badge text-bg-danger">必須</span></label>

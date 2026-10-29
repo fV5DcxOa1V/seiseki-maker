@@ -176,6 +176,8 @@ function saveMethod(): SaveMethod {
 }
 
 document.getElementById('save-hint')!.hidden = saveMethod() !== 'share-sheet';
+// PC では投稿画面を開くと同時に画像を保存するため、事前に知らせておく
+document.getElementById('post-hint')!.hidden = canShareImage() || saveMethod() !== 'download';
 
 saveBtn.addEventListener('click', async () => {
   if (!checkInput('save')) return;

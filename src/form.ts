@@ -185,7 +185,6 @@ export function initForm(store: Store, onError: (message: string) => void): Form
         store.updateSubject(subject.id, { [field]: input.value });
       });
       input.addEventListener('blur', () => {
-        if (field === 'name') return;
         touched.add(`${subject.id}:${field}`);
         if (lastResult) applyValidation(lastResult);
       });
@@ -226,7 +225,7 @@ export function initForm(store: Store, onError: (message: string) => void): Form
       const id = card.dataset.id!;
       const errors = result.subjects.get(id);
       if (!errors) continue;
-      for (const field of ['score', 'rank'] as const) {
+      for (const field of ['name', 'score', 'rank'] as const) {
         const input = card.querySelector<HTMLInputElement>(`[data-field="${field}"]`)!;
         setFieldError(input, errors[field], showAllErrors || touched.has(`${id}:${field}`));
       }
